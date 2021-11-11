@@ -71,6 +71,64 @@ app.post ('/api/department', ({body}, res) => {
     });
 });
 
+app.get ('/api/roles', (req,res) => {
+    const sql =`SELECT * FROM Roles`;
+
+  db.query(sql, (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json({
+      message: 'success',
+      data: rows
+    });
+  });
+});
+
+app.delete('/api/role/:id', (req, res) => {
+    const sql = ` DELETE FROM Roles WHERE id = ?`;
+    const params = [req.params.id];
+
+    db.query(sql, params, (err, result) => {
+        if (err){
+            res.statusMessage(400).json({ error: res.message });
+        } else if (!result.affectedRows){
+            res.json({
+                message: 'Role is not listed'
+            });
+        } else {
+            res.json ({
+                message: 'You have deleted Role successfully',
+                changes: result.affectedRows,
+                id: req.params.id
+            });
+        }
+    });
+});
+
+app.post ('/api/role', ({body}, res) => {
+    const errors = inputCheck(body,'title','salary','Department_id');
+    if (errors) {
+        res.status(400).json({ error: errors });
+        return;
+    }
+    const sql = `INSERT INTO Roles (title, salary, Department_id)
+        VALUES (?,?,?)`;
+    const params = [body.title, body.salary, body.Department_id];
+
+    db.query(sql, params, (err, result) => {
+        if (err) {
+          res.status(400).json({ error: err.message });
+          return;
+        }
+        res.json({
+          message: 'success',
+          data: body
+        });
+    });
+});
+
 app.use((req, res) => {
     res.status(404).end();
 });  
