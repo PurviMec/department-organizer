@@ -14,6 +14,15 @@ CREATE TABLE Roles (
    CONSTRAINT fk_Department FOREIGN KEY (Department_id) REFERENCES Department(id) ON DELETE SET NULL
 );
 
+CREATE TABLE Employee (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(30) NOT NULL,
+    last_name VARCHAR(30) NOT NULL,
+    role_id INTEGER,
+    manager_id INTEGER,
+    CONSTRAINT fk_Role FOREIGN KEY (Role_id) REFERENCES Roles(id) ON DELETE SET NULL
+);
+
 
 
 
