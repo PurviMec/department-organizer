@@ -1,6 +1,9 @@
 const express = require('express');
 const db = require('./db/connection');
 const inputCheck = require('./utils/inputCheck');
+const inquirer = require('inquirer');
+const consoleTable = require('console.table');
+//const consoleTable = require("console.table");
 ////const apiRoutes = require('./routes/apiRoutes');
 
 const PORT = process.env.PORT || 3001;
@@ -128,6 +131,88 @@ app.post ('/api/role', ({body}, res) => {
         });
     });
 });
+
+app.get ('/api/employees', (req,res) => {
+  const sql = `SELECT * FROM Employee`;
+
+db.query(sql, (err, rows) => {
+  if (err) {
+    res.status(500).json({ error: err.message });
+    return;
+  }
+  res.json({
+    message: 'success',
+    data: rows
+  });
+});
+});
+
+app.delete('/api/employee/:id', (req, res) => {
+  const sql = ` DELETE FROM Employee WHERE id = ?`;
+  const params = [req.params.id];
+
+  db.query(sql, params, (err, result) => {
+      if (err){
+          res.statusMessage(400).json({ error: res.message });
+      } else if (!result.affectedRows){
+          res.json({
+              message: 'Employee is not listed'
+          });
+      } else {
+          res.json ({
+              message: 'You have deleted Employee successfully',
+              changes: result.affectedRows,
+              id: req.params.id
+          });
+      }
+  });
+});
+app.post ('/api/employee', ({body}, res) => {
+  const errors = inputCheck(body,'first_name','last_name','role_id', 'manager_id');
+  if (errors) {
+      res.status(400).json({ error: errors });
+      return;
+  }
+  const sql = `INSERT INTO Employee (first_name, last_name, role_id, manager_id)
+      VALUES (?,?,?,?)`;
+  const params = [body.first_name, body.last_name, body.role_id, body.manager_id];
+
+  db.query(sql, params, (err, result) => {
+      if (err) {
+        res.status(400).json({ error: err.message });
+        return;
+      }
+      res.json({
+        message: 'success',
+        data: body
+      });
+  });
+});
+
+
+
+app.put('/api/employee/:id', (req, res) => {
+  const sql = `UPDATE Employee SET role_id = ? 
+               WHERE id = ?`;
+  const params = [req.body.role_id, req.params.id];
+  db.query(sql, params, (err, result) => {
+    if (err) {
+      res.status(400).json({ error: err.message });
+      // check if a record was found
+    } else if (!result.affectedRows) {
+      res.json({
+        message: 'Person not found'
+      });
+    } else {
+      res.json({
+        message: 'success',
+        data: req.body,
+        changes: result.affectedRows
+      });
+    }
+  });
+});
+
 
 app.use((req, res) => {
     res.status(404).end();
