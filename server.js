@@ -3,6 +3,7 @@
 //const inputCheck = require('./utils/inputCheck');
 const inquirer = require('inquirer');
 const consoleTable = require('console.table');
+
 //const { response } = require('express');
 //const consoleTable = require("console.table");
 ////const apiRoutes = require('./routes/apiRoutes');
@@ -15,6 +16,7 @@ const consoleTable = require('console.table');
 //app.use('/api', apiRoutes);
 
 const mysql = require('mysql2');
+const { response } = require('express');
 //const { connect } = require('./db/connection');
 //const Connection = require('mysql2/typings/mysql/lib/Connection');
 
@@ -174,7 +176,7 @@ const addRole = () => {
             }
         },
         {
-            name: "department", type: "input", message: "Enter department name of role",
+            name: "departmentId", type: "input", message: "Enter department id to be updated as department",
             validate: (input) => {
                 if (input === "") {
                     return 'Input data is invalid or empty';
@@ -183,45 +185,133 @@ const addRole = () => {
             }
         }
     ])
-    .then 
+    .then (response => {
 
+        db.query('INSERT INTO Roles SET ?',
+             { title : response.title, salary: response.roleSalary, Department_id: parseInt(response.departmentId) },
+            (err, res) => {
+               if(err) throw err;
+               console.log("Role has added.");
+               showAll();
+            });
+    });
 }
-//app.post ('/api/role', ({body}, res) => {
-   // const errors = inputCheck(body,'title','salary','Department_id');
-    //if (errors) {
-        //res.status(400).json({ error: errors });
-        //return;
-    //}
-    //const sql = `INSERT INTO Roles (title, salary, Department_id)
-        //VALUES (?,?,?)`;
-    //const params = [body.title, body.salary, body.Department_id];
 
-    //db.query(sql, params, (err, result) => {
-        //if (err) {
-          //res.status(400).json({ error: err.message });
-         // return;
-        //}
-        //res.json({
-          //message: 'success',
-          //data: body
-        //});
-    //});
-//});
+const viewEmployees = () => {
+    const sql = `SELECT Employee.*, Roles.title
+                AS title
+                FROM Employee
+                LEFT JOIN Roles
+                ON Employee.role_id = Roles.id
+                 `;
+    db.query(sql, (err, res) => {
+    if (err) throw err;
+    console.log(res);
+    showAll();
+    });
+}
 
-//app.get ('/api/employees', (req,res) => {
-  //const sql = `SELECT * FROM Employee`;
+const addEmployee = () => {
+    inquirer
+    .prompt([
+        {
+            name: "firstName", type: "input", message: "Enter first name to be added to new employee.",
+            validate: (input) => {
+                if (input === "") {
+                    return 'Input data is invalid or empty';
+                }
+                return true;
+            }
+        },
+        {
+            name: "lastName", type: "input", message: "Enter last name to be added to new employee.",
+            validate: (input) => {
+                if (input === "") {
+                    return 'Input data is invalid or empty';
+                }
+                return true;
+            }
+        },
+        {
+            name: "roleId", type: "input", message: "Enter role id to be added to new employee title.",
+            validate: (input) => {
+                if (input === "") {
+                    return 'Input data is invalid or empty';
+                }
+                return true;
+            }
+        },
+        {
+            name: "managerId", type: "input", message: "Enter manager id to be added to new employee.",
+            validate: (input) => {
+                if (input === "") {
+                    return 'Input data is invalid or empty';
+                }
+                return true;
+            }
+        }
+    ])
+    .then (response => {
+        db.query("INSERT INTO Employee SET ?",
+        { first_name: response.firstName, last_name: response.lastName, role_id: parseInt(response.roleId), manager_id: response.managerId},
+        (err, res) => {
+            if (err) {
+                console.log("Invalid data");
+                addEmployee();
+                return;
+            }
+            console.log("You have sucessfully added an employee.");
+            showAll();
+        });
+    });
+};
 
-//db.query(sql, (err, rows) => {
-  //if (err) {
-    //res.status(500).json({ error: err.message });
-    //return;
-  //}
-  //res.json({
-    //message: 'success',
-    //data: rows
-  //});
-//});
-//});
+const UpdateRole = () => {
+    db.query(`
+        SELECT id, first_name, last_name FROM Employee`,
+        (err, res) => {
+            if (err) throw err;
+            inquirer
+            .prompt([
+                {
+                    name: "EmployeeId",
+                    type: "input",
+                    message: "Enter the employee ID to update ",
+                    validate: (input) => {
+                        if (input === "") {
+                          return 'Input data is invalid or empty';
+                        }
+                        return true;
+                    }
+                },
+                {
+                    name: "RoleId",
+                    type: "input",
+                    message: "Enter the role ID to update employee",
+                    validate: (input) => {
+                        if (input === "") {
+                            return 'Input data is invalid or empty';
+                        }
+                        return true;
+                    }
+                }
+            ])
+            .then (response => {
+                let newEmployeeId = parseInt(response.EmployeeId);
+                let newRoleId = parseInt(response.RoleId);
+                db.query(`UPDATE Employee SET role_id = ${newRoleId} WHERE id = ${newEmployeeId}`,
+                (err, res) => {
+                    if (err) {
+                        console.log("Please enter valid id");
+                        UpdateRole();
+                        return;
+                    }
+                    console.log("ID is updated.");
+                    showAll();
+                });
+            });
+        });
+};
 
 ////app.delete('/api/employee/:id', (req, res) => {
   //const sql = ` DELETE FROM Employee WHERE id = ?`;
@@ -243,52 +333,6 @@ const addRole = () => {
      // }
  // });
 //});
-//app.post ('/api/employee', ({body}, res) => {
-  //const errors = inputCheck(body,'first_name','last_name','role_id', 'manager_id');
-  //if (errors) {
-   //   res.status(400).json({ error: errors });
-   //   return;
-  //}
-  //const sql = `INSERT INTO Employee (first_name, last_name, role_id, manager_id)
-   //   VALUES (?,?,?,?)`;
- /// const params = [body.first_name, body.last_name, body.role_id, body.manager_id];
-
-  //db.query(sql, params, (err, result) => {
-   //   if (err) {
-   //     res.status(400).json({ error: err.message });
-    //    return;
-    //  }
-    //  res.json({
-    //    message: 'success',
-     //   data: body
-     // });
-  //});
-////});
-
-
-
-//app.put('/api/employee/:id', (req, res) => {
-  //const sql = `UPDATE Employee SET role_id = ? 
-  //             WHERE id = ?`;
-  //const params = [req.body.role_id, req.params.id];
-  ///db.query(sql, params, (err, result) => {
-  //  if (err) {
-    //  res.status(400).json({ error: err.message });
-      // check if a record was found
-   // } else if (!result.affectedRows) {
-     // res.json({
-     //   message: 'Person not found'
-    //  });
-   // } else {
-    //  res.json({
-     //   message: 'success',
-      //  data: req.body,
-      //  changes: result.affectedRows
-      //});
-    //}
-  //});
-//});
-
 
   //  app.use((req, res) => {
   //  res.status(404).end();
