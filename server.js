@@ -252,11 +252,29 @@ const addEmployee = () => {
                 }
                 return true;
             }
-        }
+        },
+        {
+            name: "salary", type: "input", message: "Enter salary to be added to new employee's salary.",
+            validate: (input) => {
+                if (input === "") {
+                    return 'Input data is invalid or empty';
+                }
+                return true;
+            }
+        },
+        {
+            name: "departmentName", type: "input", message: "Enter department name to add employee to existing department.",
+            validate: (input) => {
+                if (input === "") {
+                    return 'Input data is invalid or empty';
+                }
+                return true;
+            }
+        },
     ])
     .then (response => {
         db.query("INSERT INTO Employee SET ?",
-        { first_name: response.firstName, last_name: response.lastName, role_id: parseInt(response.roleId), manager_id: response.managerId},
+        { first_name: response.firstName, last_name: response.lastName, role_id: parseInt(response.roleId), salary:response.salary, department: response.departmentName, manager_id: response.managerId},
         (err, res) => {
             if (err) {
                 console.log("Invalid data");
