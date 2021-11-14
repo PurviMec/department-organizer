@@ -14,7 +14,6 @@ https://github.com/PurviMec/department-organizer.git
 <img width="1426" alt="Screen Shot 2021-11-14 at 2 41 24 PM" src="https://user-images.githubusercontent.com/86253830/141696423-d50a125c-694d-49d2-b276-4c0cc723c9d3.png">
 
 
-## video:
 
 ## Made with help of 
 - node.js
