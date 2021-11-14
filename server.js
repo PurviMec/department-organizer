@@ -5,7 +5,6 @@ const inquirer = require('inquirer');
 const consoleTable = require('console.table');
 
 //const { response } = require('express');
-//const consoleTable = require("console.table");
 ////const apiRoutes = require('./routes/apiRoutes');
 
 //const PORT = process.env.PORT || 3001;
@@ -16,7 +15,7 @@ const consoleTable = require('console.table');
 //app.use('/api', apiRoutes);
 
 const mysql = require('mysql2');
-const { response } = require('express');
+//const { response } = require('express');
 //const { connect } = require('./db/connection');
 //const Connection = require('mysql2/typings/mysql/lib/Connection');
 
@@ -46,7 +45,8 @@ function showAll() {
             "Add a department",
             "Add a role",
             "Add a employee",
-            "Update an employee role"
+            "Update an employee role",
+            "leave"
         ]
     })
     .then(function(inputData){
@@ -58,6 +58,7 @@ function showAll() {
             case "Add a role": addRole(); break;
             case "Add a employee": addEmployee(); break;
             case "Update an employee role": UpdateRole(); break;
+            case "leave": db.end(); break;
             //case "Delete unwanted department": removeDepartment(); break;
         }
     });
