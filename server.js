@@ -2,7 +2,8 @@
 //const db = require('./db/connection');
 //const inputCheck = require('./utils/inputCheck');
 const inquirer = require('inquirer');
-const consoleTable = require('console.table');
+const mysql = require('mysql2');
+const cTable = require("console.table");
 
 //const { response } = require('express');
 ////const apiRoutes = require('./routes/apiRoutes');
@@ -14,7 +15,7 @@ const consoleTable = require('console.table');
 //app.use(express.json());
 //app.use('/api', apiRoutes);
 
-const mysql = require('mysql2');
+
 //const { response } = require('express');
 //const { connect } = require('./db/connection');
 //const Connection = require('mysql2/typings/mysql/lib/Connection');
@@ -29,6 +30,7 @@ const db = mysql.createConnection(
 
 db.connect(function(err){
   if (err) throw err;
+  console.log(" Connection #" + db.threadId + "\n");
   showAll();
 })
 
@@ -70,7 +72,7 @@ const viewDepartment= () => {
 
     db.query(sql, (err, res) => {
         if (err) throw err;
-        console.log(res);
+        console.table(res);
         showAll();
     });
 };
@@ -129,7 +131,7 @@ const viewRole = () => {
 
     db.query(sql, (err, res) => {
         if (err) throw err;
-        console.log(res);
+        console.table(res);
         showAll();
     });
 }
@@ -207,7 +209,7 @@ const viewEmployees = () => {
                  `;
     db.query(sql, (err, res) => {
     if (err) throw err;
-    console.log(res);
+    console.table(res);
     showAll();
     });
 }
